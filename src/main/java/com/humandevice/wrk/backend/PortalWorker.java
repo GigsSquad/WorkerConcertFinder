@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.xml.ws.Endpoint;
-
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -36,23 +34,26 @@ import com.humandevice.wrk.backend.workers.MailSender;
 import com.humandevice.wrk.backend.workers.MassMail;
 import com.humandevice.wrk.backend.workers.Worker;
 
+import javax.xml.ws.Endpoint;
+
+
 public class PortalWorker {
 
 	private static List<Worker> workers;
 
 	static Logger logger = Logger.getLogger(PortalWorker.class);
 
+
 	/**
-	 * Handle parameters using http://commons.apache.org/cli/usage.html, possible parameters: <br>
-	 * -port=x - set port number for CXF (default 80)<br>
-	 * -url=/control - set URL for CXF endpoint (default "/control")<br>
-	 * -config=config.properties = set relative path to config file (default "configuration.properties")<br>
-	 * 
-	 * @param args
-	 *            Command line arguments
-	 * @throws org.apache.commons.cli.ParseException
+	 *  Handle parameters using http://commons.apache.org/cli/usage.html, possible parameters: <br>
+	 *  -port=x - set port number for CXF (default 80)<br>
+	 *  -url=/control - set URL for CXF endpoint (default "/control")<br>
+	 *  -config=config.properties = set relative path to config file (default "configuration.properties")<br>
+	 *  
+	 * @param args Command line arguments
+	 * @throws org.apache.commons.cli.ParseException 
 	 */
-	public static void main(String[] args) throws org.apache.commons.cli.ParseException, IOException {
+	public static void main(String[] args) throws org.apache.commons.cli.ParseException, IOException{
 
 		int port = 85;
 		String url = "/control";
@@ -68,15 +69,15 @@ public class PortalWorker {
 		BasicParser parser = new BasicParser();
 		CommandLine cl = parser.parse(opt, args);
 
-		if (cl.hasOption("port")) {
+		if(cl.hasOption("port")){
 			port = Integer.parseInt(cl.getOptionValue("port"));
 			Logger.getLogger(PortalWorker.class).info("Specified port number for web service [parameter: port]: " + port);
 		}
-		if (cl.hasOption("url")) {
+		if(cl.hasOption("url")){
 			url = cl.getOptionValue("url");
 			Logger.getLogger(PortalWorker.class).info("Specified URL for veb service endpoint [parameter: url]: " + url);
 		}
-		if (cl.hasOption("config")) {
+		if(cl.hasOption("config")){
 			config = cl.getOptionValue("config");
 			Logger.getLogger(PortalWorker.class).info("Specified relative path to config file [parameter: config]: " + config);
 		}
@@ -85,7 +86,7 @@ public class PortalWorker {
 
 			File configFile = new File(config);
 
-			if (null != configFile && configFile.canRead()) {
+			if(null != configFile && configFile.canRead()) {
 
 				new PortalWorker(configFile, url, port);
 			}
@@ -99,30 +100,27 @@ public class PortalWorker {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
+		
 		Logger.getLogger(PortalWorker.class).info("Worker stopped!");
 	}
-
 	/**
 	 * 
-	 * @param configuration
-	 *            Pointer to a configuration file
-	 * @param endpoint
-	 *            URL for CXF SOAP endpoint for control interface
-	 * @param port
-	 *            Port number for web service, default 80
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 * @throws SQLException
+	 * @param configuration Pointer to a configuration file
+	 * @param endpoint URL for CXF SOAP endpoint for control interface
+	 * @param port Port number for web service, default 80
+	 * @throws IOException 
+	 * @throws ClassNotFoundException 
+	 * @throws SQLException 
 	 */
 	public PortalWorker(File config, String endpoint, int port) throws IOException, ClassNotFoundException, SQLException {
 		PortalWorker.workers = new ArrayList<Worker>();
 
 		logger.info("Created PortalWorker with parameters [config=" + config.getPath() + ", url=" + endpoint + ", port=" + port + "]");
 
-		int refreshInterval = 60; // in seconds
-
-		// create configurationservice and populate with db data. Periodicaly refresh by ConfigurationRefresh
+		int refreshInterval = 60;	// in seconds
+		
+		
+		//create configurationservice and populate with db data. Periodicaly refresh by ConfigurationRefresh
 
 		InputStream configInputStream = new FileInputStream(config);
 		Properties properties = new Properties();
@@ -131,7 +129,7 @@ public class PortalWorker {
 		configInputStream.close();
 
 		driver = properties.getProperty("jdbc.driverClassName");
-		if (driver != null) {
+		if(driver != null) {
 			Class.forName(driver);
 		}
 
@@ -140,7 +138,7 @@ public class PortalWorker {
 		password = properties.getProperty("jdbc.password");
 
 		Connection connection = DriverManager.getConnection(url, username, password);
-
+		
 		connection.createStatement().execute("SET NAMES 'UTF8'");
 
 		Configuration configuration = new Configuration();
@@ -150,7 +148,7 @@ public class PortalWorker {
 		PreparedStatement statement = connection.prepareStatement(selectConfigurationSQL);
 		ResultSet resultSet = statement.executeQuery();
 
-		while (resultSet.next()) {
+		while(resultSet.next()) {
 			parameters.put(resultSet.getString("param"), resultSet.getString("value"));
 
 			logger.info("Added configuration parameter [" + resultSet.getString("param") + " = " + resultSet.getString("value") + "]");
@@ -159,17 +157,17 @@ public class PortalWorker {
 		configuration.setParameters(parameters);
 		configuration.setConnection(connection);
 		statement.close();
-
+		
 		// setting up timer to execute interrupt (Thread.notifyAll) every minute using QuartzScheduler
-
+		
 		JobDetail portalWrokerJob = JobBuilder.newJob(PortalWorkerJob.class)
 				.withIdentity("PortalWorker")
 				.build();
 
 		Trigger trigger = TriggerBuilder.newTrigger()
 				.withSchedule(
-						SimpleScheduleBuilder.simpleSchedule()
-								.withIntervalInSeconds(refreshInterval).repeatForever()) // repeat every 60 seconds
+					SimpleScheduleBuilder.simpleSchedule()
+ 						.withIntervalInSeconds(refreshInterval).repeatForever())	 // repeat every  60 seconds
 				.build();
 
 		Scheduler scheduler = null;
@@ -178,52 +176,54 @@ public class PortalWorker {
 
 			scheduler.start();
 			scheduler.scheduleJob(portalWrokerJob, trigger);
-			logger.info("Scheduler set to wake up threads in every " + refreshInterval + " seconds");
-		} catch (SchedulerException e1) {
+			logger.info("Scheduler set to wake up threads in every " + refreshInterval +" seconds");
+		} 
+		catch (SchedulerException e1) {
 			e1.printStackTrace();
 		}
+		
 
 		// Creating the workers
-
+		
+		
 		if ("1".equals(properties.getProperty("worker.configuration.refresh"))) {
 			workers.add(new ConfigurationRefresh());
 		}
-
+		
 		if ("1".equals(properties.getProperty("worker.mass.mail"))) {
 			workers.add(new MassMail());
 		}
-
+		
 		if ("1".equals(properties.getProperty("worker.archive.logs"))) {
 			workers.add(new ArchiveLogs());
 		}
-
-		if ("1".equals(properties.getProperty("worker.mail.sender"))) {
+		
+		if ("1".equals(properties.getProperty("worker.mail.sender"))){
 			workers.add(new MailSender());
 		}
-
+		
 		List<Thread> workerThreads = new ArrayList<Thread>();
-
-		for (Worker worker : workers) {
+		
+		for(Worker worker: workers) {
 			worker.setConnection(connection);
 			worker.setConfiguration(configuration);
 			worker.init();
-
+			
 			Thread workerThread = new Thread(worker);
 			workerThread.setName(worker.toString());
 			workerThread.start();
 			logger.info("Started worker - " + worker.toString());
-
+			
 			workerThreads.add(workerThread);
 		}
-
+		
 		// creating shutdown hook (happend when killterm is being sent)
 		createShutDownHook();
 
 		if ("1".equals(properties.getProperty("endpoint.publish"))) {
-			// publishing SOAP web service with interface pl.ardeo.youdash.ControlService (and implement it) under URL
-			// endpoint
+			// publishing SOAP web service with interface pl.ardeo.youdash.ControlService (and implement it) under URL endpoint
 			String wSAddress = getWebServiceAddress(endpoint, configuration.getParameter("web_service_host"), port);
-			if (null == wSAddress) {
+			if(null == wSAddress) {
 				connection.close();
 				throw new NullPointerException("Web Service address cannot be null!");
 			}
@@ -231,34 +231,36 @@ public class PortalWorker {
 			Endpoint.publish(wSAddress, controlServiceImpl);
 			logger.info("Web Service started successfuly on address: " + wSAddress);
 		}
+		
+		
 
 		logger.info("Portal worker started!");
-
-		for (Thread wThread : workerThreads) {
+		
+		for(Thread wThread: workerThreads) {
 			try {
 				logger.info("Joined " + wThread.toString());
 				wThread.join();
-
+				
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-
+		
 		try {
-			if (null != scheduler) {
+			if(null != scheduler){
 				scheduler.shutdown();
 				logger.info("Scheduler shutdown...");
 			}
-		} catch (SchedulerException e) {
+		} 
+		catch (SchedulerException e) {
 			e.printStackTrace();
 		}
-
+		
 		logger.info("Web Service shutdown...");
 	}
-
+	
 	/**
-	 * Prepares address for web service.<br>
-	 * <br>
+	 * Prepares address for web service.<br><br>
 	 * If host is null then it will be set to default value - <i>localhost</i>.<br>
 	 * 
 	 * @param endpoint
@@ -267,39 +269,41 @@ public class PortalWorker {
 	 * @return WebService address
 	 */
 	private String getWebServiceAddress(String endpoint, String host, int port) {
-
+		
 		try {
-			if (null == endpoint) {
+			if(null == endpoint) {
 				throw new NullPointerException("Endpoint is null!");
 			}
-			if (port <= 0) {
+			if(port <= 0) {
 				throw new IllegalArgumentException("Port value is incorrect! Port: " + port);
 			}
 			else {
 
-				if (!endpoint.startsWith("/"))
-					endpoint = "/" + endpoint;
+				if(!endpoint.startsWith("/")) endpoint = "/" + endpoint;
 
 				return "http://" + ((null != host && host.trim().length() > 0) ? host : "localhost") + ":" + port + endpoint;
 			}
-		} catch (NullPointerException e) {
+		}
+		catch(NullPointerException e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
+		}
+		catch(IllegalArgumentException e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
 
 		return null;
 	}
-
+	
 	/**
 	 * @return the workers
 	 */
 	public static List<Worker> getWorkers() {
 		return workers;
 	}
-
+	
+	
 	/**
 	 * Shutdown hook. Invoke {@link ControlServiceImpl.shutdown()} in response to term signal
 	 * 
@@ -309,9 +313,8 @@ public class PortalWorker {
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 
 			public void run() {
-				for (Worker worker : workers) {
-					if (!worker.isShuttingDown())
-						worker.close();
+				for(Worker worker: workers) {
+					if(!worker.isShuttingDown()) worker.close();
 				}
 				logger.info("Worker container shutting down");
 			}
