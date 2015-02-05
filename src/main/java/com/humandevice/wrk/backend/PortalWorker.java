@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.xml.ws.Endpoint;
+
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -28,13 +30,8 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 
-import com.humandevice.wrk.backend.workers.ArchiveLogs;
-import com.humandevice.wrk.backend.workers.ConfigurationRefresh;
-import com.humandevice.wrk.backend.workers.MailSender;
-import com.humandevice.wrk.backend.workers.MassMail;
+import com.humandevice.wrk.backend.workers.TicketPro;
 import com.humandevice.wrk.backend.workers.Worker;
-
-import javax.xml.ws.Endpoint;
 
 
 public class PortalWorker {
@@ -186,21 +183,11 @@ public class PortalWorker {
 		// Creating the workers
 		
 		
-		if ("1".equals(properties.getProperty("worker.configuration.refresh"))) {
-			workers.add(new ConfigurationRefresh());
+		if ("1".equals(properties.getProperty("worker.ticetPro"))) {
+			workers.add(new TicketPro());
 		}
 		
-		if ("1".equals(properties.getProperty("worker.mass.mail"))) {
-			workers.add(new MassMail());
-		}
 		
-		if ("1".equals(properties.getProperty("worker.archive.logs"))) {
-			workers.add(new ArchiveLogs());
-		}
-		
-		if ("1".equals(properties.getProperty("worker.mail.sender"))){
-			workers.add(new MailSender());
-		}
 		
 		List<Thread> workerThreads = new ArrayList<Thread>();
 		

@@ -65,8 +65,8 @@ public abstract class Worker implements Runnable {
 			log.executeUpdate();
 			log.close();
 		} catch (SQLException e) {
-			Logger.getLogger(ConfigurationRefresh.class)
-					.error("Warning - possible problem with " + worker + " worker detected");
+			//Logger.getLogger(ConfigurationRefresh.class)
+			//		.error("Warning - possible problem with " + worker + " worker detected");
 			
 		}
 	}

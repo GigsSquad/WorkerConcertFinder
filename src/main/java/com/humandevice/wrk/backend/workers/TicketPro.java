@@ -1,14 +1,36 @@
 package com.humandevice.wrk.backend.workers;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+
+
+
+
+
 public class TicketPro extends Worker{
-	
+	String agencyName = "TICKETPRO";
+	String url = "hd04.human-device.com";
+	Connection conn;
+	Statement st;
+	public TicketPro()
+	{
+		super();
+		try {
+			conn = DriverManager.getConnection(url,"gigs", "gigaFUN46534#");
+			st  = conn.createStatement();	
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	@Override
 	public void process() {
 		//metoda odpowiedzialna za wykonywanie zadan konkretnego workera
@@ -27,8 +49,21 @@ public class TicketPro extends Worker{
 		// TODO Auto-generated method stub
 		return false;
 	}
-
-	public addConcert(String, conCity, conSpot, conDay, conMonth, conYear, "TICKETPRO", conUrl);
+	
+	public void addConcert(String conArtist, String conCity, String conSpot, int conDay, int conMonth, int conYear,String conUrl)
+	{
+		  
+			
+			try {
+				st.execute("INSERT INTO Concerts VALUES('"+conArtist+"','"+conCity+"','"+conSpot+"',"+conDay+","+conMonth+","+conYear+",'"+agencyName+"','"+conUrl+"')");
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		 
+		  
+	}
 	public void getData() throws IOException {
 
 		String urlParse = "http://www.ticketpro.pl/jnp/muzyka/index.html?page=1";
@@ -71,7 +106,7 @@ public class TicketPro extends Worker{
 
 					// System.out.printf("%s %s %s  %d  %d  %d %s %s \n",conName, conCity, conSpot, conDay, conMonth,
 					// conYear, "TicketPro", conUrl);
-					dbm.addConcert(conName, conCity, conSpot, conDay, conMonth, conYear, "TICKETPRO", conUrl);
+					addConcert(conName, conCity, conSpot, conDay, conMonth, conYear, conUrl);
 				} else
 					// jest wiecej niz jeden koncert
 					// System.out.println(conName);
@@ -120,7 +155,7 @@ public class TicketPro extends Worker{
 					String conCity = conLocationArray[1];
 					// System.out.printf("%s %s %s  %d  %d  %d %s %s \n",conName, conCity, conSpot, conDay, conMonth,
 					// conYear, "TicketPro", conUrl);
-					dbm.addConcert(conName, conCity, conSpot, conDay, conMonth, conYear, "TICKETPRO", conUrl);
+					addConcert(conName, conCity, conSpot, conDay, conMonth, conYear, conUrl);
 
 				} catch (ArrayIndexOutOfBoundsException e) {
 					System.err.println("BĹ‚Ä…d parsowania");
