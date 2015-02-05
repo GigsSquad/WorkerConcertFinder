@@ -3,6 +3,8 @@ package com.humandevice.wrk.backend.workers;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -11,6 +13,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.itextpdf.text.log.SysoLogger;
 
 
 
@@ -18,23 +21,40 @@ import org.jsoup.select.Elements;
 
 public class TicketPro extends Worker{
 	String agencyName = "TICKETPRO";
-	String url = "hd04.human-device.com";
-	Connection conn;
-	Statement st;
+	String url = "jdbc:mysql://hd4.human-device.com:3306/gigs";
+	private Connection conn;
+	private Statement st;
+	private PreparedStatement preparedStatement = null;
+	  private ResultSet resultSet = null;
+	private long lastRun=0;
+	private static int counter = 0;
+	
 	public TicketPro()
 	{
 		super();
 		try {
-			conn = DriverManager.getConnection(url,"gigs", "gigaFUN46534#");
+			 // This will load the MySQL driver, each DB has its own driver
+		      Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(url,"gigs","gigaFUN46534#");
+			// Result set get the result of the SQL query
 			st  = conn.createStatement();	
-		} catch (SQLException e) {
-			e.printStackTrace();
+		
+					
+		}
+		catch (SQLException sqlExc) {
+			System.out.println("sqlException");
+			sqlExc.printStackTrace();
+			
+		}catch (Exception exc){
+			System.out.println("excetion");
+			exc.printStackTrace();
 		}
 	}
 	@Override
 	public void process() {
 		//metoda odpowiedzialna za wykonywanie zadan konkretnego workera
 		// TODO Auto-generated method stub
+		lastRun = System.currentTimeMillis();
 		try {
 			getData();
 		} catch (IOException e) {
@@ -46,16 +66,23 @@ public class TicketPro extends Worker{
 
 	@Override
 	public boolean checkConditions() {
-		// TODO Auto-generated method stub
-		return false;
+		long currentTime = System.currentTimeMillis();
+		
+		return (currentTime - lastRun) > 50 * 1000;
 	}
 	
 	public void addConcert(String conArtist, String conCity, String conSpot, int conDay, int conMonth, int conYear,String conUrl)
 	{
 		  
-			
+		
 			try {
-				st.execute("INSERT INTO Concerts VALUES('"+conArtist+"','"+conCity+"','"+conSpot+"',"+conDay+","+conMonth+","+conYear+",'"+agencyName+"','"+conUrl+"')");
+				counter++;
+				
+					System.out.println("wpsiuje do bazu");
+					//st.execute("INSERT INTO Concerts VALUES(1,'art','city','spot',12,1,2014,'ticketPro','url')");
+					st.execute("INSERT INTO Concerts VALUES("+counter+",'"+conArtist+"','"+conCity+"','"+conSpot+"',"+conDay+","+conMonth+","+conYear+",'"+agencyName+"','"+conUrl+"')");
+			
+					System.out.println("wpisalem do bazy");
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -72,8 +99,7 @@ public class TicketPro extends Worker{
 		int conDay, conMonth, conYear;
 		do {
 			Document doc = Jsoup.connect(urlParse)
-					.userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
-					.timeout(1000000).get();
+					.userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0").timeout(100000).get();
 			Elements concertData = doc.getElementsByClass("eventInfo");
 
 			// dbm.updateHash("TicketPro", currentHash);
@@ -106,6 +132,7 @@ public class TicketPro extends Worker{
 
 					// System.out.printf("%s %s %s  %d  %d  %d %s %s \n",conName, conCity, conSpot, conDay, conMonth,
 					// conYear, "TicketPro", conUrl);
+					
 					addConcert(conName, conCity, conSpot, conDay, conMonth, conYear, conUrl);
 				} else
 					// jest wiecej niz jeden koncert
@@ -165,5 +192,14 @@ public class TicketPro extends Worker{
 		}
 	
 	}
-	
+	public static void main(String[] args)
+	{
+		TicketPro tp = new TicketPro();
+		try {
+			tp.getData();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
