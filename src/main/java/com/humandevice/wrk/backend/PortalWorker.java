@@ -141,19 +141,19 @@ public class PortalWorker {
 		Configuration configuration = new Configuration();
 		Map<String, String> parameters = new HashMap<String, String>();
 
-		String selectConfigurationSQL = "SELECT * FROM config";
-		PreparedStatement statement = connection.prepareStatement(selectConfigurationSQL);
-		ResultSet resultSet = statement.executeQuery();
+		//String selectConfigurationSQL = "SELECT * FROM config";
+		//PreparedStatement statement = connection.prepareStatement(selectConfigurationSQL);
+		//ResultSet resultSet = statement.executeQuery();
 
-		while(resultSet.next()) {
-			parameters.put(resultSet.getString("param"), resultSet.getString("value"));
-
-			logger.info("Added configuration parameter [" + resultSet.getString("param") + " = " + resultSet.getString("value") + "]");
-		}
+//		while(resultSet.next()) {
+//			parameters.put(resultSet.getString("param"), resultSet.getString("value"));
+//
+//			logger.info("Added configuration parameter [" + resultSet.getString("param") + " = " + resultSet.getString("value") + "]");
+//		}
 
 		configuration.setParameters(parameters);
 		configuration.setConnection(connection);
-		statement.close();
+//		statement.close();
 		
 		// setting up timer to execute interrupt (Thread.notifyAll) every minute using QuartzScheduler
 		

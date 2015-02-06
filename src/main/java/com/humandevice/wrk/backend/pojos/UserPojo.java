@@ -5,7 +5,8 @@ package com.humandevice.wrk.backend.pojos;
  *         kolejki mass queue
  */
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 public class UserPojo {
 
@@ -33,5 +34,4 @@ public class UserPojo {
 	@Getter
 	@Setter
 	private String email;
-
 }
