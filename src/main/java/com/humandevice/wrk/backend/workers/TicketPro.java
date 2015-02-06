@@ -8,64 +8,13 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.sql.*;
 
-public class TicketPro extends Worker {
-	String agencyName = "TICKETPRO";
-	String url = "jdbc:mysql://hd4.human-device.com:3306/gigs";
-	private Connection conn;
-	private Statement st;
-	private PreparedStatement preparedStatement = null;
-	private ResultSet resultSet = null;
-	private long lastRun = 0;
-	private static int counter = 0;
+public class TicketPro extends ParseWorker {
+	
 
 	public TicketPro() {
 		super();
-		try {
-			// This will load the MySQL driver, each DB has its own driver
-			Class.forName("com.mysql.jdbc.Driver");
-			conn = DriverManager.getConnection(url, "gigs", "gigaFUN46534#");
-			// Result set get the result of the SQL query
-			st = conn.createStatement();
-		} catch (SQLException sqlExc) {
-			System.out.println("sqlException");
-			sqlExc.printStackTrace();
-
-		} catch (Exception exc) {
-			System.out.println("excetion");
-			exc.printStackTrace();
-		}
-	}
-
-	@Override
-	public void process() {
-		//metoda odpowiedzialna za wykonywanie zadan konkretnego workera
-		// TODO Auto-generated method stub
-		lastRun = System.currentTimeMillis();
-		try {
-			getData();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public boolean checkConditions() {
-		long currentTime = System.currentTimeMillis();
-
-		return (currentTime - lastRun) > 50 * 1000;
-	}
-
-	public void addConcert(String conArtist, String conCity, String conSpot, int conDay, int conMonth, int conYear, String conUrl) {
-		try {
-			counter++;
-			System.out.println("Wpise do bazy do bazu");
-			st.execute("INSERT INTO Concerts VALUES(" + counter + ",'" + conArtist + "','" + conCity + "','" + conSpot + "'," + conDay + "," + conMonth
-					+ "," + conYear + ",'" + agencyName + "','" + conUrl + "')");
-		} catch (SQLException e1) {
-			System.out.println("Wyjebałem wielkiego błęda");
-			//e1.printStackTrace();
-		}
+		agencyName = "TICKETPRO";
+		
 	}
 
 	public void getData() throws IOException {
@@ -110,7 +59,7 @@ public class TicketPro extends Worker {
 					// System.out.printf("%s %s %s  %d  %d  %d %s %s \n",conName, conCity, conSpot, conDay, conMonth,
 					// conYear, "TicketPro", conUrl);
 
-					addConcert(conName, conCity, conSpot, conDay, conMonth, conYear, conUrl);
+					addConcert(conName, conCity, conSpot, conDay, conMonth, conYear, agencyName,conUrl);
 				} else
 					// jest wiecej niz jeden koncert
 					// System.out.println(conName);
@@ -156,10 +105,10 @@ public class TicketPro extends Worker {
 					String conCity = conLocationArray[1];
 					// System.out.printf("%s %s %s  %d  %d  %d %s %s \n",conName, conCity, conSpot, conDay, conMonth,
 					// conYear, "TicketPro", conUrl);
-					addConcert(conName, conCity, conSpot, conDay, conMonth, conYear, conUrl);
+					addConcert(conName, conCity, conSpot, conDay, conMonth, conYear, agencyName, conUrl);
 
 				} catch (ArrayIndexOutOfBoundsException e) {
-					System.err.println("BĹ‚Ä…d parsowania");
+					System.err.println("parsing error");
 					break;
 				}
 			}
