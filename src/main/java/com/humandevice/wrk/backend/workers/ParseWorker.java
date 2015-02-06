@@ -11,7 +11,7 @@ import java.sql.Statement;
 public abstract class ParseWorker extends Worker  {
 
 	protected long lastRun;
-	private static int counter = 0;
+	protected static int counter = 0;
 	String url = "jdbc:mysql://hd4.human-device.com:3306/gigs";
 	protected Connection conn;
 	protected Statement st;
@@ -22,6 +22,7 @@ public abstract class ParseWorker extends Worker  {
 	 * Abstract class to get data from agencies
 
 	 */
+	
 	public abstract void getData() throws IOException ;
 	
 	public ParseWorker()
@@ -73,6 +74,7 @@ public abstract class ParseWorker extends Worker  {
 	public void process() {
 		//metoda odpowiedzialna za wykonywanie zadan konkretnego workera
 		// TODO Auto-generated method stub
+		
 		lastRun = System.currentTimeMillis();
 		try {
 			getData();
