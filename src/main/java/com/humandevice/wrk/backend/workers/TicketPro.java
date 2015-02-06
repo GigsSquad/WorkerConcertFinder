@@ -1,22 +1,12 @@
 package com.humandevice.wrk.backend.workers;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.itextpdf.text.log.SysoLogger;
-
-
-
+import java.io.IOException;
+import java.sql.*;
 
 
 public class TicketPro extends Worker{
@@ -38,8 +28,6 @@ public class TicketPro extends Worker{
 			conn = DriverManager.getConnection(url,"gigs","gigaFUN46534#");
 			// Result set get the result of the SQL query
 			st  = conn.createStatement();	
-		
-					
 		}
 		catch (SQLException sqlExc) {
 			System.out.println("sqlException");
@@ -73,8 +61,6 @@ public class TicketPro extends Worker{
 	
 	public void addConcert(String conArtist, String conCity, String conSpot, int conDay, int conMonth, int conYear,String conUrl)
 	{
-		  
-		
 			try {
 				counter++;
 				
@@ -87,9 +73,6 @@ public class TicketPro extends Worker{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-		 
-		  
 	}
 	public void getData() throws IOException {
 
