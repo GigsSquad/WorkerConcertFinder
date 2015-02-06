@@ -164,16 +164,5 @@ public class TicketPro extends Worker {
 				}
 			}
 		}
-
-	}
-
-	public static void main(String[] args) {
-		TicketPro tp = new TicketPro();
-		try {
-			tp.getData();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }

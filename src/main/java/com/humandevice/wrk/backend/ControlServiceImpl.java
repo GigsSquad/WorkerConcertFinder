@@ -49,7 +49,6 @@ public class ControlServiceImpl implements ControlService {
 		logger.info("PortalWorker is going to exit...");
 	}
 
-	
 	@WebMethod
 	public void triggerTicketPro() {
 		for(Worker worker: workers) {
@@ -66,10 +65,4 @@ public class ControlServiceImpl implements ControlService {
 			}
 		}
 	}
-	
-
-	
-	
-
-	
 }
