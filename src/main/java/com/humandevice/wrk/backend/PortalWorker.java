@@ -1,7 +1,12 @@
 package com.humandevice.wrk.backend;
 
+import com.humandevice.wrk.backend.workers.AlterArt;
+import com.humandevice.wrk.backend.workers.EBilet;
+import com.humandevice.wrk.backend.workers.GoAhead;
+import com.humandevice.wrk.backend.workers.LiveNation;
 import com.humandevice.wrk.backend.workers.TicketPro;
 import com.humandevice.wrk.backend.workers.Worker;
+
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -10,6 +15,7 @@ import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
 import javax.xml.ws.Endpoint;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -35,14 +41,14 @@ public class PortalWorker {
 	 * @throws org.apache.commons.cli.ParseException
 	 */
 	public static void main(String[] args) throws org.apache.commons.cli.ParseException, IOException {
-
+		String config = "src/main/resources/configuration.properties";
 		int port = 85;
 		String url = "/control";
-		String config = "src/main/resources/configuration.properties";
+		
 
 		// src/main/resources/configuration.properties mploy/dev/config/configuration.properties
 		Options opt = new Options();
-
+			
 		opt.addOption("port", true, "Set port number for CXF");
 		opt.addOption("url", true, "Set URL for CXF endpoint");
 		opt.addOption("config", true, "Set relative path to config file");
@@ -97,10 +103,10 @@ public class PortalWorker {
 
 		logger.info("Created PortalWorker with parameters [config=" + config.getPath() + ", url=" + endpoint + ", port=" + port + "]");
 
-		int refreshInterval = 60;    // in seconds
+		int refreshInterval = 300;    // in seconds
 
-		//create configurationservice and populate with db data. Periodicaly refresh by ConfigurationRefresh
-
+		//create configuration service and populate with db data. Periodicaly refresh by ConfigurationRefresh
+		
 		InputStream configInputStream = new FileInputStream(config);
 		Properties properties = new Properties();
 		String driver, url, username, password;
@@ -119,7 +125,7 @@ public class PortalWorker {
 		Connection connection = DriverManager.getConnection(url, username, password);
 
 		connection.createStatement().execute("SET NAMES 'UTF8'");
-
+		connection.createStatement().execute("DELETE FROM Concerts");////////
 		Configuration configuration = new Configuration();
 		Map<String, String> parameters = new HashMap<String, String>();
 
@@ -161,7 +167,19 @@ public class PortalWorker {
 
 		// Creating the workers
 
-		if ("1".equals(properties.getProperty("worker.ticetPro"))) {
+		if ("1".equals(properties.getProperty("worker.AlterArt"))) {
+			workers.add(new AlterArt());
+		}
+		if ("1".equals(properties.getProperty("worker.EBilet"))) {
+			workers.add(new EBilet());
+		}
+		if ("1".equals(properties.getProperty("worker.GoAhead"))) {
+			workers.add(new GoAhead());
+		}
+		if ("1".equals(properties.getProperty("worker.LiveNation"))) {
+			workers.add(new LiveNation());
+		}
+		if ("1".equals(properties.getProperty("worker.TicketPro"))) {
 			workers.add(new TicketPro());
 		}
 

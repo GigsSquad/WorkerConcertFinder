@@ -34,7 +34,7 @@ public abstract class ParseWorker extends Worker  {
 			// Result set get the result of the SQL query
 			st  = conn.createStatement();	
 			
-			st.execute("DELETE FROM Concerts");
+			
 					
 		}
 		catch (SQLException sqlExc) {
@@ -55,7 +55,7 @@ public abstract class ParseWorker extends Worker  {
 			try {
 				counter++;
 				
-					System.out.println("wpsiuje do bazy koncert:"+ conArtist);
+					System.out.println(agencyName+"wpsiuje do bazy koncert:"+ conArtist);
 					//st.execute("INSERT INTO Concerts VALUES(1,'art','city','spot',12,1,2014,'ticketPro','url')");
 					st.execute("INSERT INTO Concerts VALUES("+counter+",'"+conArtist+"','"+conCity+"','"+conSpot+"',"+conDay+","+conMonth+","+conYear+",'"+agencyName+"','"+conUrl+"')");
 			
