@@ -162,6 +162,9 @@ public class PortalWorker {
 		if ("1".equals(properties.getProperty("worker.TicketPro"))) {
 			workers.add(new TicketPro());
 		}
+        if ("1".equals(properties.getProperty("worker.SongKick"))) {
+            workers.add(new SongKick());
+        }
 
 		List<Thread> workerThreads = new ArrayList<Thread>();
 
