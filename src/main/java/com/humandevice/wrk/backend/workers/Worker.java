@@ -1,14 +1,12 @@
 package com.humandevice.wrk.backend.workers;
 
+import com.humandevice.wrk.backend.Configuration;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
-
-import org.apache.log4j.Logger;
-
-import com.humandevice.wrk.backend.Configuration;
 
 public abstract class Worker implements Runnable {
 	
@@ -28,11 +26,7 @@ public abstract class Worker implements Runnable {
 	public void setConfiguration(Configuration configuration) { //ustawia konfiguracje
 		this.configuration = configuration;
 	}
-	public void setConnection2(Connection connection2) { //ustawia drugie polaczneie
-		this.connection2 = connection2;
-	}
 
-	
 	public void close() { //konczy dzialania workera
 		shutDown = true;
 	}

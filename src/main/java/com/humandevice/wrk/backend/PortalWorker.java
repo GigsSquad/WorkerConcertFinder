@@ -1,12 +1,6 @@
 package com.humandevice.wrk.backend;
 
-import com.humandevice.wrk.backend.workers.AlterArt;
-import com.humandevice.wrk.backend.workers.EBilet;
-import com.humandevice.wrk.backend.workers.GoAhead;
-import com.humandevice.wrk.backend.workers.LiveNation;
-import com.humandevice.wrk.backend.workers.TicketPro;
-import com.humandevice.wrk.backend.workers.Worker;
-
+import com.humandevice.wrk.backend.workers.*;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -15,7 +9,6 @@ import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
 import javax.xml.ws.Endpoint;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -129,20 +122,8 @@ public class PortalWorker {
 		Configuration configuration = new Configuration();
 		Map<String, String> parameters = new HashMap<String, String>();
 
-		//String selectConfigurationSQL = "SELECT * FROM config";
-		//PreparedStatement statement = connection.prepareStatement(selectConfigurationSQL);
-		//ResultSet resultSet = statement.executeQuery();
-
-		//		while(resultSet.next()) {
-		//			parameters.put(resultSet.getString("param"), resultSet.getString("value"));
-		//
-		//			logger.info("Added configuration parameter [" + resultSet.getString("param") + " = " + resultSet.getString("value") + "]");
-		//		}
-
 		configuration.setParameters(parameters);
 		configuration.setConnection(connection);
-		//		statement.close();
-		// setting up timer to execute interrupt (Thread.notifyAll) every minute using QuartzScheduler
 
 		JobDetail portalWrokerJob = JobBuilder.newJob(PortalWorkerJob.class)
 				.withIdentity("PortalWorker")
@@ -166,7 +147,6 @@ public class PortalWorker {
 		}
 
 		// Creating the workers
-
 		if ("1".equals(properties.getProperty("worker.AlterArt"))) {
 			workers.add(new AlterArt());
 		}
