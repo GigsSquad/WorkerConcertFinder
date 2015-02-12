@@ -1,5 +1,6 @@
 package com.humandevice.wrk.backend.workers;
 
+//import com.humandevice.wrk.backend.others.Normalizer;
 import com.mysql.jdbc.MysqlDataTruncation;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
@@ -27,12 +28,13 @@ public abstract class ParseWorker extends Worker {
 		try {
 			counter++;
 
-			conArtist = getBeautifulString(conArtist);
-			conCity = getBeautifulString(conCity);
-			conSpot = getBeautifulString(conSpot);
-			
+//			conArtist = getBeautifulString(conArtist);
+//			conCity = getBeautifulString(conCity);
+//			conSpot = getBeautifulString(conSpot);
+//			
 			PreparedStatement pstm = null;
 			
+
 			System.out.printf("%-13s%-10d%-18s%.60s\n", agencyName, counter, conCity, conArtist);
 
 			//System.out.println(agencyName + "\t wpsiuje do bazy koncert: '" + conCity + "'");
@@ -115,12 +117,6 @@ public abstract class ParseWorker extends Worker {
 			e.printStackTrace();
 		}
 
-	}
-
-	//TODO tutaj będą linijki Amana żeby to wszystko bylo ladnie zapisywane w bazie
-	//TODO usuwanie kropek, przecinków polskie znaki inne gówna
-	private String getBeautifulString(String str) {
-		return str.trim().replaceAll("'", " ");
 	}
 
 	/**
