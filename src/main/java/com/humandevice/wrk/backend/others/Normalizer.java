@@ -86,10 +86,14 @@ public class Normalizer {
      */
     private static String grbgDel(String s){
         StringBuilder res = new StringBuilder(s.trim().replace("  "," "));
-        for(int i=0; i<res.length()-1;i++){
+        for(int i=0; i<res.length();i++){
             char c = res.charAt(i);
-            if(c>=33 && c<=46 || c>=58 && c<=64)
-                res.replace(i,i+1,"");
+            System.out.println("sprawdzam: "+c);
+            if(c>=33 && c<=47 || c>=58 && c<=64) {
+                System.out.println("wywalam: "+c);
+                res.replace(i, i + 1, "");
+                i-=1;
+            }
         }
         return res.toString();
     }
@@ -106,7 +110,7 @@ public class Normalizer {
         return res.toString();
     }
 
-//    public static void main (String[] args){
-//       System.out.println(normalizeCity("WARSAW"));
-//    }
+    public static void main (String[] args){
+       System.out.println(normalizeCity("WARSAW../,./,/?"));
+    }
 }
