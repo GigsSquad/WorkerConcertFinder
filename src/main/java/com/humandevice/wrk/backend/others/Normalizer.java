@@ -88,9 +88,9 @@ public class Normalizer {
         StringBuilder res = new StringBuilder(s.trim().replace("  "," "));
         for(int i=0; i<res.length();i++){
             char c = res.charAt(i);
-            System.out.println("sprawdzam: "+c);
+            //System.out.println("sprawdzam: "+c);
             if(c>=33 && c<=47 || c>=58 && c<=64) {
-                System.out.println("wywalam: "+c);
+                //System.out.println("wywalam: "+c);
                 res.replace(i, i + 1, "");
                 i-=1;
             }
@@ -109,8 +109,8 @@ public class Normalizer {
         }
         return res.toString();
     }
-
-    public static void main (String[] args){
-       System.out.println(normalizeCity("WARSAW../,./,/?"));
-    }
+//
+//    public static void main (String[] args){
+//       System.out.println(normalizeCity("WARSAW../,./,/?"));
+//    }
 }
