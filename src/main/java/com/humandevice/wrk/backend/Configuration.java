@@ -22,6 +22,7 @@ public class Configuration {
 	 * @param name
 	 * @return
 	 */
+	
 	public String getParameter(String name) {
 		
 		try {

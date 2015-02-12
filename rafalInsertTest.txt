@@ -1,0 +1,5 @@
+INSERT INTO  gigs.Concerts(ARTIST,CITY,SPOT,DAY,MONTH,YEAR,AGENCY,URL)
+SELECT * FROM (SELECT 'conArtist5','conCity1','conSpot1',12,1,2014,'agencyName','conUrl') AS tmp
+WHERE NOT EXISTS (
+    SELECT ARTIST FROM Concerts WHERE ARTIST = 'conArtist5'
+) LIMIT 1;

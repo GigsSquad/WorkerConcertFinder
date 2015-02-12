@@ -1,32 +1,42 @@
 package com.humandevice.wrk.backend.workers;
 
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.sql.*;
+import java.net.SocketTimeoutException;
 
 public class TicketPro extends ParseWorker {
-	
 
 	public TicketPro() {
 		super();
 		agencyName = "TICKETPRO";
-		
 	}
 
 	public void getData() throws IOException {
 
+		System.out.println("getDate");
 		String urlParse = "http://www.ticketpro.pl/jnp/muzyka/index.html?page=1";
 		String urlParseName = ""; // potrzebne do parsowania podstron
 		String conCity, conSpot;
 		int conDay, conMonth, conYear;
 		do {
-			Document doc = Jsoup.connect(urlParse)
-					.userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0").timeout(100000).get();
-			Elements concertData = doc.getElementsByClass("eventInfo");
+			Document doc = null;
+			Elements concertData = null;
+			try {
+				doc = Jsoup.connect(urlParse).userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
+						.timeout(1000).get();
+				concertData = doc.getElementsByClass("eventInfo");
+			} catch (HttpStatusException e) {
+				parseError("Błąd 404, przy pobieraniu z URL = " + urlParse + urlParseName);
+			} catch (SocketTimeoutException tmoe) {
+				doc = Jsoup.connect(urlParse).userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0")
+						.timeout(100000).get();
+				concertData = doc.getElementsByClass("eventInfo");
+			}
 
 			// dbm.updateHash("TicketPro", currentHash);
 
@@ -52,14 +62,11 @@ public class TicketPro extends ParseWorker {
 						conMonth = Integer.parseInt(conDateArray[1]);
 						conYear = Integer.parseInt(conDateArray[2]);
 					} catch (ArrayIndexOutOfBoundsException e) {
-						System.err.println("Błąd parsowania");
+						parseError("wyjatek: ArrayIndexOutOfBoundsException, wygląda na obsługiwany");
 						continue;
 					}
 
-					// System.out.printf("%s %s %s  %d  %d  %d %s %s \n",conName, conCity, conSpot, conDay, conMonth,
-					// conYear, "TicketPro", conUrl);
-
-					addConcert(conName, conCity, conSpot, conDay, conMonth, conYear, agencyName,conUrl);
+					addConcert(conName, conCity, conSpot, conDay, conMonth, conYear, agencyName, conUrl);
 				} else
 					// jest wiecej niz jeden koncert
 					// System.out.println(conName);
@@ -103,12 +110,10 @@ public class TicketPro extends ParseWorker {
 					String[] conLocationArray = conLocation.split(",");
 					String conSpot = conLocationArray[0];
 					String conCity = conLocationArray[1];
-					// System.out.printf("%s %s %s  %d  %d  %d %s %s \n",conName, conCity, conSpot, conDay, conMonth,
-					// conYear, "TicketPro", conUrl);
 					addConcert(conName, conCity, conSpot, conDay, conMonth, conYear, agencyName, conUrl);
 
 				} catch (ArrayIndexOutOfBoundsException e) {
-					System.err.println("parsing error");
+					parseError("wyjatek: ArrayIndexOutOfBoundsException, wygląda na obsługiwany");
 					break;
 				}
 			}
