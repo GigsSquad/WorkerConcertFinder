@@ -1,5 +1,8 @@
 package com.humandevice.wrk.backend.workers;
 
+
+
+import java.io.IOException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -9,8 +12,6 @@ import com.google.api.services.mapsengine.MapsEngineRequestInitializer;
 import com.google.api.services.mapsengine.model.Feature;
 import com.google.api.services.mapsengine.model.FeaturesListResponse;
 import com.google.api.services.mapsengine.model.GeoJsonPoint;
-
-import java.io.IOException;
 
 public class SpotParser extends Worker {
 
@@ -52,8 +53,8 @@ public class SpotParser extends Worker {
 						"Longitude: " + point.getCoordinates().get(0) + ", " +
 						"Latitude: " + point.getCoordinates().get(1));
 			} else {
-				System.out.println("Only points are expected in this table!");
-				return;
+				/*System.out.println("Only points are expected in this table!");
+				return;*/
 			}
 		}
 	}
