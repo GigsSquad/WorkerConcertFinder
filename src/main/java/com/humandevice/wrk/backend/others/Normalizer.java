@@ -3,7 +3,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by Kuba on 10/02/2015.
@@ -15,6 +17,7 @@ public class Normalizer {
     private static HashMap<String,String> dict = new HashMap<String,String>();
     private static HashMap<Character,Character> lettersPL = new HashMap<Character,Character>();
     private static HashMap<String,String> cities = new HashMap<String,String>();
+    private static String[] spotBlacklist = new String[]{"Klub","Club","św.","ŚW."};
 
     static{
         //wypełnianie słownika
@@ -73,6 +76,21 @@ public class Normalizer {
             return cities.get(res);
         return res;
     }
+
+    public static String normalizeSpot(String s){
+        String res = spotCleaner(s);
+        res = normalizeCase(grbgDel(res));
+        return res;
+    }
+
+    private static String spotCleaner(String s){
+        // wywalamy wszystkie Cluby,Kluby etc
+        for(String pattern :spotBlacklist )
+            if (s.contains(pattern))
+                s = s.replace(pattern,"");
+        return s;
+    }
+
 
     /*
     ogarniacz czcionki
