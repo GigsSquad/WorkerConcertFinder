@@ -84,7 +84,7 @@ public class Normalizer {
     /*
     wywala wszystkie kropki, przecinki i inny syf
      */
-    private static String grbgDel(String s){
+   public static String grbgDel(String s){
         StringBuilder res = new StringBuilder(s.trim().replace("  "," "));
         for(int i=0; i<res.length();i++){
             char c = res.charAt(i);

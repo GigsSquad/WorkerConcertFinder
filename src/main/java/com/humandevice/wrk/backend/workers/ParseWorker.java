@@ -1,5 +1,6 @@
 package com.humandevice.wrk.backend.workers;
 
+import com.humandevice.wrk.backend.others.MapMgr;
 import com.humandevice.wrk.backend.others.Normalizer;
 import com.mysql.jdbc.MysqlDataTruncation;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
@@ -54,9 +55,12 @@ public abstract class ParseWorker extends Worker {
 
 			System.out.printf("%-13s%-10d%-18s%.60s\n", agencyName, counter, conCity, conArtist);
 
+            String[] lonlat = MapMgr.getCoordinates(conSpot,conCity,"");
+            String lon = lonlat[0], lat = lonlat[1];
+
 			//System.out.println(agencyName + "\t wpsiuje do bazy koncert: '" + conCity + "'");
 			st.execute("INSERT INTO Concerts VALUES(" + counter + ",'" + conArtist + "','" + conCity + "','" + conSpot + "'," + conDay + "," + conMonth + ","
-					+ conYear + ",'" + agencyName + "','" + conUrl + "')");
+					+ conYear + ",'" + agencyName + "','" + conUrl + "','" + lat +"','" + lon + "')");
 		} catch (MySQLIntegrityConstraintViolationException intgre) {
 			sqlError(counter + ": zdublowane id");
 			counter++;
@@ -65,7 +69,9 @@ public abstract class ParseWorker extends Worker {
 		} catch (SQLException e) {
 			sqlError(counter + ": dunno");
 			e.printStackTrace();
-		}
+		}catch (IOException e){
+            sqlError(counter + ": błąd z lon/lat");
+        }
 
 	}
 
