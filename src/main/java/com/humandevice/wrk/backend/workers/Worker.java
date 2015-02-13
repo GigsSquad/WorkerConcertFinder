@@ -16,7 +16,6 @@ public abstract class Worker implements Runnable {
 	 */
 	protected boolean shutDown = false;
 	protected Connection connection;
-	protected Connection connection2;
 	protected Configuration configuration;
 	
 	public void setConnection(Connection connection) { //utawiania polaczenie
