@@ -55,7 +55,8 @@ public abstract class ParseWorker extends Worker {
 
 			System.out.printf("%-13s%-10d%-18s%.60s\n", agencyName, counter, conCity, conArtist);
 
-            String[] lonlat = MapMgr.getCoordinates(conSpot,conCity,"");
+            String[] lonlat = MapMgr.getCoordinates(Normalizer.normalizeSpot(conSpot),conCity);
+            lonlat = lonlat[0] == "not found"? MapMgr.getCityCoordinates(conCity) : lonlat;
             String lon = lonlat[0], lat = lonlat[1];
 
 			//System.out.println(agencyName + "\t wpsiuje do bazy koncert: '" + conCity + "'");
@@ -69,9 +70,7 @@ public abstract class ParseWorker extends Worker {
 		} catch (SQLException e) {
 			sqlError(counter + ": dunno");
 			e.printStackTrace();
-		}catch (IOException e){
-            sqlError(counter + ": błąd z lon/lat");
-        }
+		}
 
 	}
 
