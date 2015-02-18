@@ -3,7 +3,11 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Kuba on 10/02/2015.
@@ -15,6 +19,7 @@ public class Normalizer {
     private static HashMap<String,String> dict = new HashMap<String,String>();
     private static HashMap<Character,Character> lettersPL = new HashMap<Character,Character>();
     private static HashMap<String,String> cities = new HashMap<String,String>();
+    private static String[] spotBlacklist = new String[]{"Klub","Club","św.","ŚW.","ul.","UL.","Ul."};
 
     static{
         //wypełnianie słownika
@@ -75,9 +80,49 @@ public class Normalizer {
     }
 
     /*
+        !!!UŻYWAC TYLKO DO LAT/LONG!!!
+     */
+    public static String normalizeSpot(String s){
+        String res="";
+        for(String word : spotCleaner(s).split(" ")) {
+            res += normalizeCase(word) + " ";
+            //System.out.println(res);
+        }
+        res = streetPattern(grbgDelSpot(res.trim()));
+        return res;
+    }
+
+    private static String spotCleaner(String s){
+        // wywalamy wszystkie Cluby,Kluby etc
+        for(String word :spotBlacklist )
+            if (s.contains(word))
+                s = s.replace(word,"");
+        return s;
+    }
+
+    private static String streetPattern(String s){
+        String res = s;
+        if(s.contains(",")){
+            String case1 = ".*\\d";
+            String case2 = ".*\\d{2}";
+            String case3 = ".*\\d{3}";
+            String tmp = res.split(",")[1];
+            if(Pattern.matches(case1,tmp)||Pattern.matches(case2,tmp)||Pattern.matches(case3,tmp)) {
+                //System.out.println("if");
+                res = tmp;
+            }
+        }
+        return res.trim();
+    }
+
+    /*
     ogarniacz czcionki
      */
     private static String normalizeCase(String s){
+        if(s.equals(""))
+            return "";
+        if(s.length()==1)
+            return s.toUpperCase();
         return (s.charAt(0)+"").toUpperCase()+s.substring(1).toLowerCase();
     }
 
@@ -98,6 +143,21 @@ public class Normalizer {
         return res.toString();
     }
 
+    // jw do Spot
+    public static String grbgDelSpot(String s){
+        StringBuilder res = new StringBuilder(s.trim().replace("  "," "));
+        for(int i=0; i<res.length();i++){
+            char c = res.charAt(i);
+            //System.out.println("sprawdzam: "+c);
+            if((c>=33 && c<=47 && c!=44) || c>=58 && c<=64) {
+                //System.out.println("wywalam: "+c);
+                res.replace(i, i + 1, "");
+                i-=1;
+            }
+        }
+        return res.toString();
+    }
+
     /*
     Zamienia polskie znaki na "niepolskie"
      */
@@ -109,8 +169,9 @@ public class Normalizer {
         }
         return res.toString();
     }
-//
+
 //    public static void main (String[] args){
-//       System.out.println(normalizeCity("WARSAW../,./,/?"));
+//
+//        System.out.println(normalizeSpot("Basen, ul. Konopnickiej 6"));
 //    }
 }

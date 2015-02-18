@@ -21,17 +21,12 @@ public class MapMgr {
     @ params: numer domu, ulica, miasto, kraj
     @ return: tablica ze współrzędnymi [String]
      */
-    public static String[] getCoordinatesByAddress(String houseNumber, String street, String city,String country) throws IOException {
-        return getCoordinates(houseNumber+" "+street,city,country);
-    }
+//    public static String[] getCoordinatesByAddress(String houseNumber, String street, String city,String country{
+//        return getCoordinates(houseNumber+" "+street,city,country);
+//    }
 
-    /*
-    @ params: nazwa klubu, miasto, kraj
-    @ return: tablica ze współrzędnymi [String]
- */
-    public static String[] getCoordinates(String club, String city,String country) throws IOException {
-        String params = club+ ", " + Normalizer.grbgDel(city) +
-                ", "+country+ "&format=" +format;
+
+    private static String[] getCoordinates(String params){
         params = params.replace(" ","+") + (email!= null? email : "");
         JSONObject jso;
         try {
@@ -42,15 +37,33 @@ public class MapMgr {
         return new String[]{jso.getString("lat"),jso.getString("lon")};
     }
 
+    /*
+    @ params: nazwa klubu (od biedy(!) adres w jednym stringu), miasto, kraj
+    @ return: tablica ze współrzędnymi [String]
+    */
+    public static String[] getCoordinates(String club, String city,String country){
+        String params = club+ ", " + Normalizer.grbgDel(city) + ", "+country+ "&format=" +format;
+        return getCoordinates(params);
+    }
+    //bez kraju
+    public static String[] getCoordinates(String place,String city){
+        String params = place+ ", " + Normalizer.grbgDel(city) + "&format=" +format;
+        return getCoordinates(params);
+    }
+    //
+    public static String[] getCityCoordinates(String city){
+        String params = Normalizer.grbgDel(city) + "&format=" +format;
+        return getCoordinates(params);
+    }
+
     private static JSONArray getJSON(String params) throws IOException {
         Document doc = Jsoup.connect(url_front+params).ignoreContentType(true).get();
         String docContent = doc.toString().split("<body>")[1].split("</body>")[0];
-        //System.out.println("haloo: "+docContent);
         return docContent=="[]"? null : new JSONArray(docContent);
     }
 
     public static void main(String[] args) throws IOException {
-        for(String s : getCoordinates("Alibi","Wrocław",""))
+        for(String s : getCityCoordinates("Wrocław"))
             System.out.println(s);
     }
 

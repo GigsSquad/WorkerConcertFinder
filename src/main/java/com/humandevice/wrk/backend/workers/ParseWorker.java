@@ -54,6 +54,9 @@ public abstract class ParseWorker extends Worker {
 			pstm.setString(9, lon);
 			pstm.setString(10, lat);
 			pstm.executeUpdate();
+            String[] lonlat = MapMgr.getCoordinates(Normalizer.normalizeSpot(conSpot),conCity);
+            lonlat = lonlat[0] == "not found"? MapMgr.getCityCoordinates(conCity) : lonlat;
+            String lon = lonlat[0], lat = lonlat[1];
 
 			//ta ściana zakomentowanych liniej kodu jest na gitcie dd1a221bed23b8d162659e3e5b661605ed9b8f13
 
@@ -64,6 +67,7 @@ public abstract class ParseWorker extends Worker {
 			e.printStackTrace();
 		} catch (IOException e) {
 			sqlError("błąd z lon/lat");
+		}
 		}
 
 	}
