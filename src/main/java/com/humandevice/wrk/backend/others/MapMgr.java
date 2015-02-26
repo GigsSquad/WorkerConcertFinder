@@ -32,7 +32,7 @@ public class MapMgr {
         try {
             jso = getJSON(params).getJSONObject(0);
         }catch (Exception e){
-            return new String[]{null,null};
+            return new String[]{"0","0"};
         }
         return new String[]{jso.getString("lat"),jso.getString("lon")};
     }
