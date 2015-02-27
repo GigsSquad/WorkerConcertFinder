@@ -2,27 +2,22 @@ package com.humandevice.wrk.backend.workers;
 
 import com.humandevice.wrk.backend.others.MapMgr;
 import com.humandevice.wrk.backend.others.Normalizer;
-import com.itextpdf.text.log.SysoLogger;
+import com.humandevice.wrk.backend.pojos.LatLngPojo;
 import com.mysql.jdbc.MysqlDataTruncation;
-import com.mysql.jdbc.exceptions.jdbc4.MySQLDataException;
-
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-//import com.humandevice.wrk.backend.others.Normalizer;
-
 public abstract class ParseWorker extends Worker {
 
-	static Logger logger = Logger.getLogger(ParseWorker.class);
 	protected long lastRun;
-	protected PreparedStatement preparedStatement = null;
+	protected PreparedStatement pstm = null;
 	protected ResultSet resultSet = null;
 	protected String agencyName;
-	public static int errCount = 0;
+	private static final String table = "concerts_test";
+
 	/*
 	 * Abstract class to get data from agencies
 	 */
@@ -32,119 +27,56 @@ public abstract class ParseWorker extends Worker {
 	public void addConcert(String conArtist, String conCity, String conSpot, int conDay, int conMonth, int conYear, String agencyName, String conUrl) {
 
 		try {
-			PreparedStatement pstm = null;
-
-			String[] lonlat = MapMgr.getCoordinates(conSpot, conCity, "");
-			String lon = lonlat[0], lat = lonlat[1];
-
-			
+			conSpot = Normalizer.normalizeSpot(conSpot);
 			conCity = Normalizer.normalizeCity(conCity);
-			//String log = String.format("%-4.4s %-12.12s %-20.20s %-18.18s %-18.18s %-40.40s", agencyName, conCity, conSpot, lon, lat, conArtist);
-			//System.out.println(log);
-			
-			
+
+			LatLngPojo latlng = MapMgr.getCoordinates(conSpot, conCity);
+
 			//pobieram
-			
-			String get = "SELECT* FROM concerts WHERE artist =? AND CITY = ? AND DAY=? AND MONTH=? AND YEAR =?";
-			
+			String get = String.format("SELECT * FROM %s WHERE artist = ? AND city = ? AND day = ? AND month = ? AND year = ?", table);
 			pstm = connection.prepareStatement(get);
 			pstm.setString(1, conArtist);
 			pstm.setString(2, conCity);
 			pstm.setInt(3, conDay);
 			pstm.setInt(4, conMonth);
 			pstm.setInt(5, conYear);
-			
-			ResultSet rs = pstm.executeQuery();
+			resultSet = pstm.executeQuery();
 			String log;
-			if(rs.next())
-			{
-			log = String.format("ISTNIEJE %-4.4s %-12.12s %-20.20s %-18.18s %-18.18s %-40.40s", agencyName, conCity, conSpot, lon, lat, conArtist);
-			System.out.println(log);
+
+			if (resultSet.next()) {
+				log = String.format("ISTNIEJE %-4.4s %-12.12s %-20.20s %-18.18s %-18.18s %-40.40s", agencyName, conCity, conSpot, latlng.getLatitude(),
+						latlng.getLongitude(), conArtist);
+				System.out.println(log);
+
+			} else {
+				log = String.format("DODAJE %-4.4s %-12.12s %-20.20s %-18.18s %-18.18s %-40.40s", agencyName, conCity, conSpot, latlng.getLatitude(),
+						latlng.getLongitude(), conArtist);
+				System.out.println(log);
+
+				String insert = String
+						.format("INSERT IGNORE INTO %s(artist, city, spot, day, month, year, agency, url, lat, lon) VALUES(?,?,?,?,?,?,?,?,?,?)", table);
+
+				pstm = connection.prepareStatement(insert);
+				pstm.setString(1, conArtist);
+				pstm.setString(2, conCity);
+				pstm.setString(3, conSpot);
+				pstm.setInt(4, conDay);
+				pstm.setInt(5, conMonth);
+				pstm.setInt(6, conYear);
+				pstm.setString(7, agencyName);
+				pstm.setString(8, conUrl);
+				pstm.setString(9, latlng.getLatitude());
+				pstm.setString(10, latlng.getLongitude());
+				pstm.executeUpdate();
+
 			}
-			else 
-			{	
-			log = String.format("DODAJE %-4.4s %-12.12s %-20.20s %-18.18s %-18.18s %-40.40s", agencyName, conCity, conSpot, lon, lat, conArtist);
-			System.out.println(log);
-			
-		
-			String insert = "INSERT IGNORE INTO concerts(ARTIST,CITY,SPOT,DAY,MONTH,YEAR,AGENCY,URL, LAT, LON) VALUES(?,?,?,?,?,?,?,?,?,?)";
-
-			pstm = connection.prepareStatement(insert);
-			pstm.setString(1, conArtist);
-			pstm.setString(2, conCity);
-			pstm.setString(3, conSpot);
-			pstm.setInt(4, conDay);
-			pstm.setInt(5, conMonth);
-			pstm.setInt(6, conYear);
-			pstm.setString(7, agencyName);
-			pstm.setString(8, conUrl);
-			pstm.setString(9, lon);
-			pstm.setString(10, lat);
-			pstm.executeUpdate();
-
-			
-			}
-			//ta ściana zakomentowanych liniej kodu jest na gitcie dd1a221bed23b8d162659e3e5b661605ed9b8f13
-
-			//
-			// String insert = "INSERT INTO Concerts(ARTIST,CITY,SPOT,DAY,MONTH,YEAR,AGENCY,URL)"
-			// + "SELECT * FROM (SELECT"
-			// + "? as ARTIST,"
-			// + "? as CITY,"
-			// +"? as SPOT,"
-			// +"? as DAY,"
-			// +"? as MONTH,"
-			// +"? as YEAR,?,"
-			// +"? as URL) AS tmp"
-			// +"WHERE NOT EXISTS ("
-			// +"SELECT ARTIST FROM Concerts WHERE ARTIST = ? AND CITY = ? AND SPOT = ? AND DAY=? AND MONTH = ? AND YEAR = ?"
-			// +") LIMIT 1";
-			//
-			//
-			// pstm = connection.prepareStatement(insert);
-			// pstm.setString(1,conArtist);
-			// pstm.setString(2, conCity);
-			// pstm.setString(3, conSpot);
-			// pstm.setInt(4, conDay);
-			// pstm.setInt(5,conMonth);
-			// pstm.setInt(6, conYear);
-			// pstm.setString(7, agencyName);
-			// pstm.setString(8, conUrl);
-			// pstm.setString(9, conArtist);
-			// pstm.setString(10, conCity);
-			// pstm.setString(11, conSpot);
-			// pstm.setInt(12, conDay);
-			// pstm.setInt(13,conMonth);
-			// pstm.setInt(14, conYear);
-			//
-			// pstm.executeUpdate();
-			// pstm.close();
-			//st.execute("INSERT INTO Concerts2(ARTIST,CITY,SPOT,DAY,MONTH,YEAR,AGENCY,URL)"+
-			// st.execute("INSERT IGNORE INTO Concerts(ARTIST,CITY,SPOT,DAY,MONTH,YEAR,AGENCY,URL))
-			/* "SELECT * FROM (SELECT"+
-			"'"+conArtist+"'"+" as ARTIST,"+
-			"'"+conCity+"'"+" as CITY,"+
-			"'"+conSpot+"'"+"as SPOT,"+
-			5 +"as DAY,"+
-			5 +"as MONTH,"+
-			2015+ "as YEAR,"+
-			"'"+agencyName+"',"+
-			"'"+conUrl+"'+" as URL) AS tmp"+
-			"WHERE NOT EXISTS("+
-			"SELECT ARTIST FROM Concerts2 WHERE ARTIST = '"+conArt+"' AND CITY = '"+conCity+"' AND SPOT = '"+conSpot+"' AND DAY="+conDay+"AND MONTH = "+conMonth+" AND YEAR = "+conYear+
-			") LIMIT 1;");
-			*/
 		} catch (MysqlDataTruncation trnce) {
 			sqlError("za długa kolumna " + conArtist);
-		} catch (SQLException e) {
-			sqlError("dunno");
-			e.printStackTrace();
-		} catch (IOException e) {
-			sqlError("błąd z lon/lat");
+		} catch (SQLException sqle) {
+			sqle.printStackTrace();
 		}
-
 	}
-	
+
 	/**
 	 * Metoda odpowiedzialna za wykonywania działań konkretnego workera
 	 */
@@ -154,10 +86,43 @@ public abstract class ParseWorker extends Worker {
 
 		lastRun = System.currentTimeMillis();
 		try {
+			updateLatLng(false);
 			getData();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (IOException | SQLException ioe) {
+			ioe.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Bierze wszystkie koncerty pokolei które mają lat = 0 lub lon = 0 i próbuje do nich znaleźć poprawne współrzędne
+	 *
+	 * @param forceUpdate - aktualizuje wszystkie współrzędne z bazy, a nie tylko brakujące
+	 * @throws SQLException
+	 */
+	public void updateLatLng(boolean forceUpdate) throws SQLException {
+		String select = String.format("SELECT * FROM %s", table);
+
+		if (!forceUpdate) {
+			select = String.format("%s WHERE lat = 0 OR lon = 0", select);
+		}
+
+		pstm = connection.prepareStatement(select);
+		resultSet = pstm.executeQuery();
+
+		while (resultSet.next()) {
+			String update = String.format("UPDATE %s SET lat = ?, lon = ? WHERE ord = ?", table);
+			pstm = connection.prepareStatement(update);
+
+			LatLngPojo latlon = MapMgr.getCoordinates(resultSet.getString(3), resultSet.getString(4));
+			if (!latlon.isEmpty()) {
+				pstm.setString(1, latlon.getLatitude());
+				pstm.setString(2, latlon.getLongitude());
+				pstm.setInt(3, resultSet.getInt(1));
+				pstm.executeUpdate();
+			}
+			System.out.println(
+					"UPDATE LatLng: " + resultSet.getString(3) + " " + resultSet.getString(4) + " - " + latlon.getLatitude() + " / " + latlon.getLongitude());
 		}
 
 	}
@@ -165,21 +130,15 @@ public abstract class ParseWorker extends Worker {
 	public boolean checkConditions() {
 		long currentTime = System.currentTimeMillis();
 
-		return (currentTime - lastRun) > 50 * 1000;
+		return (currentTime - lastRun) > 900000; //15 minut
 	}
 
 	protected void parseError(String err) {
 		System.err.println(agencyName + ": błąd parsowania (" + err + ")");
-		errCount++;
 	}
 
 	private void sqlError(String err) {
 		System.err.println(err);
-		errCount++;
 	}
 
-	public int getErrCounter() {
-		return errCount;
-	}
-	
 }

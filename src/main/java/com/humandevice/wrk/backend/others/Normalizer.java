@@ -3,22 +3,20 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Created by Kuba on 10/02/2015.
+ * Normalizuje stringi
  */
 public class Normalizer {
 
     private static String [] PL = {"Warszawa","Kraków"};
     private static String [] EN = {"Warsaw","Cracow"};
-    private static HashMap<String,String> dict = new HashMap<String,String>();
-    private static HashMap<Character,Character> lettersPL = new HashMap<Character,Character>();
-    private static HashMap<String,String> cities = new HashMap<String,String>();
+    private static HashMap<String,String> dict = new HashMap<>();
+    private static HashMap<Character,Character> lettersPL = new HashMap<>();
+    private static HashMap<String,String> cities = new HashMap<>();
     private static String[] spotBlacklist = new String[]{"Klub","Club","św.","ŚW.","ul.","UL.","Ul."};
 
     static{
@@ -60,8 +58,6 @@ public class Normalizer {
         }catch (IOException e){
             System.out.println("Uszkodzony plik miasta.txt");
         }
-
-
     }
 
     /*
