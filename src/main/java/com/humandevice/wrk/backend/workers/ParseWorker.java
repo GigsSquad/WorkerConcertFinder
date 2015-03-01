@@ -60,7 +60,7 @@ public abstract class ParseWorker extends Worker {
             String lon = lonlat[0], lat = lonlat[1];
 
 			//System.out.println(agencyName + "\t wpsiuje do bazy koncert: '" + conCity + "'");
-			st.execute("INSERT INTO Concerts VALUES(" + counter + ",'" + conArtist + "','" + conCity + "','" + conSpot + "'," + conDay + "," + conMonth + ","
+			st.execute("INSERT INTO concerts VALUES(" + counter + ",'" + conArtist + "','" + conCity + "','" + conSpot + "'," + conDay + "," + conMonth + ","
 					+ conYear + ",'" + agencyName + "','" + conUrl + "','" + lat +"','" + lon + "')");
 		} catch (MySQLIntegrityConstraintViolationException intgre) {
 			sqlError(counter + ": zdublowane id");

@@ -118,7 +118,7 @@ public class PortalWorker {
 		Connection connection = DriverManager.getConnection(url, username, password);
 
 		connection.createStatement().execute("SET NAMES 'UTF8'");
-		connection.createStatement().execute("DELETE FROM Concerts");////////
+		connection.createStatement().execute("DELETE FROM concerts");////////
 		Configuration configuration = new Configuration();
 		Map<String, String> parameters = new HashMap<String, String>();
 
@@ -164,6 +164,9 @@ public class PortalWorker {
 		}
         if ("1".equals(properties.getProperty("worker.SongKick"))) {
             workers.add(new SongKick());
+        }
+        if ("1".equals(properties.getProperty("worker.Eventim"))) {
+            workers.add(new Eventim());
         }
 
 		List<Thread> workerThreads = new ArrayList<Thread>();
