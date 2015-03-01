@@ -74,8 +74,8 @@ public class Normalizer {
         res = res.trim();
         if(dict.containsKey(res))
             return dict.get(res);
-        if(cities.containsKey(res))
-            return cities.get(res);
+        if(cities.containsKey(convertLetter(res)))
+            return cities.get(convertLetter(res));
         return res;
     }
 
