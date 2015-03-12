@@ -3,17 +3,16 @@
 ### DB
 * Nazwa bazy danych: musicart
 * Typ bazy: MySQL 5.5
-* Adres serwera baz danych: sql.musicart.nazwa.pl
-* Port serwera baz danych: 3307
-* Użytkownik bazy (login): musicart
-* Pass: GIG$$$finder112!
-* Panel zarządzania bazą danych: https://mysql.nazwa.pl/ 
+* Adres serwera baz danych: __sql.musicart.nazwa.pl__
+* Port serwera baz danych: __3307__
+* Użytkownik bazy (login): __musicart__
+* Pass: __GIG$$$finder112!__
 
 ### FTP
-* Nazwa konta (login): musicart_android
-* Serwer FTP do umieszczania stron: ftp.musicart.nazwa.pl
+* Nazwa konta (login): __musicart_android__
+* Serwer FTP do umieszczania stron: __ftp.musicart.nazwa.pl__
 * Opis konta:	PHP do aplikacji
-* Pass: GIG$$$finder112!
+* Pass: __GIG$$$finder112!__
 * Katalog: /android 
 
 Do tworzenia bazy, żeby nie wyklikiwać tego miliony razy 
