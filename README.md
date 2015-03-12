@@ -1,5 +1,9 @@
 # WorkerConcertFinder
 
+musicart.nazwa.pl
+p: GIG$$$find!
+https://admin.nazwa.pl/
+
 zapytan do bazy nie konczymy średnikiem
 
 tu macie przykładowe jakieś komendy do workbencha żeby się pobawic :P
