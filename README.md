@@ -1,22 +1,21 @@
 # WorkerConcertFinder
 
-musicart.nazwa.pl
+###serwer
 
-p: GIG$$$find!
+* musicart.nazwa.pl
+* pass: GIG$$$find!
+* https://admin.nazwa.pl/
 
-https://admin.nazwa.pl/
+###baza danych z koncertami 
 
-zapytan do bazy nie konczymy średnikiem
+* Nazwa bazy danych: musicart
+* Typ bazy: MySQL 5.5
+* Adres serwera baz danych: sql.musicart.nazwa.pl
+* Port serwera baz danych: 3307
+* Użytkownik bazy (login): musicart
+* Pass: GIG$$$find!
+* Panel zarządzania bazą danych: https://mysql.nazwa.pl/ 
 
-tu macie przykładowe jakieś komendy do workbencha żeby się pobawic :P
-
-* INSERT INTO gigs.Concerts VALUE(1, 'JAKIS ARTYSTA', 'MIASTO', 'SPOT', 6, 11, 2014, 'AGENCJA', 'jakis-url.com')
-
-* UPDATE table WHERE something = 'something'
-
-* DELETE FROM gigs.Concerts WHERE ARTIST = 'B.O.K.'
-
-[Jakiś tutorial, nawet po naszemu](http://php.net/manual/pl/function.mysql-query.php)
 
 Do tworzenia bazy, żeby nie wyklikiwać tego miliony razy 
 ```
