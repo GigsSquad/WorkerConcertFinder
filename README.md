@@ -1,11 +1,5 @@
 # WorkerConcertFinder
 
-###serwer
-
-* musicart.nazwa.pl
-* pass: GIG$$$find!
-* https://admin.nazwa.pl/
-
 ###baza danych z koncertami 
 
 * Nazwa bazy danych: musicart
@@ -13,9 +7,15 @@
 * Adres serwera baz danych: sql.musicart.nazwa.pl
 * Port serwera baz danych: 3307
 * Użytkownik bazy (login): musicart
-* Pass: GIG$$$find!
+* Pass: GIG$$$finder112!
 * Panel zarządzania bazą danych: https://mysql.nazwa.pl/ 
 
+###
+* Nazwa konta (login): musicart_android
+* Serwer FTP do umieszczania stron: ftp.musicart.nazwa.pl
+* Opis konta:	PHP do aplikacji
+* Pass: GIG$$$finder112!
+* Katalog: /android 
 
 Do tworzenia bazy, żeby nie wyklikiwać tego miliony razy 
 ```
