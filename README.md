@@ -1,7 +1,9 @@
 # WorkerConcertFinder
 
 musicart.nazwa.pl
+
 p: GIG$$$find!
+
 https://admin.nazwa.pl/
 
 zapytan do bazy nie konczymy średnikiem
