@@ -1,6 +1,7 @@
 package com.humandevice.wrk.backend;
 
 import com.humandevice.wrk.backend.workers.*;
+
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -9,6 +10,7 @@ import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
 import javax.xml.ws.Endpoint;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -164,6 +166,12 @@ public class PortalWorker {
 		}
         if ("1".equals(properties.getProperty("worker.SongKick"))) {
             workers.add(new SongKick());
+        }
+        if ("1".equals(properties.getProperty("worker.Prestige"))) {
+            workers.add(new Prestige());
+        }
+        if ("1".equals(properties.getProperty("worker.Kayax"))) {
+            workers.add(new Kayax());
         }
 
 		List<Thread> workerThreads = new ArrayList<Thread>();
