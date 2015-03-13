@@ -45,7 +45,7 @@ public abstract class ParseWorker extends Worker {
 			
 			//pobieram
 			
-			String get = "SELECT* FROM concerts WHERE artist =? AND CITY = ? AND DAY=? AND MONTH=? AND YEAR =?";
+			String get = "SELECT* FROM concerts_test WHERE artist =? AND CITY = ? AND DAY=? AND MONTH=? AND YEAR =?";
 			
 			pstm = connection.prepareStatement(get);
 			pstm.setString(1, conArtist);
@@ -67,7 +67,7 @@ public abstract class ParseWorker extends Worker {
 			System.out.println(log);
 			
 		
-			String insert = "INSERT IGNORE INTO concerts(ARTIST,CITY,SPOT,DAY,MONTH,YEAR,AGENCY,URL, LAT, LON) VALUES(?,?,?,?,?,?,?,?,?,?)";
+			String insert = "INSERT IGNORE INTO concerts_test(ARTIST,CITY,SPOT,DAY,MONTH,YEAR,AGENCY,URL, LAT, LON) VALUES(?,?,?,?,?,?,?,?,?,?)";
 
 			pstm = connection.prepareStatement(insert);
 			pstm.setString(1, conArtist);
