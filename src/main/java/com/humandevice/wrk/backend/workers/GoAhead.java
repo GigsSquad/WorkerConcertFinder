@@ -17,12 +17,7 @@ public class GoAhead extends ParseWorker {
 
 	}
 
-	@Override
-	public boolean checkConditions() {
-		long currentTime = System.currentTimeMillis();
 
-		return (currentTime - lastRun) > 50 * 1000;
-	}
 
 	public void getData() throws IOException {
 		Document doc = Jsoup.connect(URL_GOAHEAD).get();
