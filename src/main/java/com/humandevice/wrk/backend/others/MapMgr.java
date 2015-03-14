@@ -21,7 +21,7 @@ public class MapMgr {
     @ params: numer domu, ulica, miasto, kraj
     @ return: tablica ze współrzędnymi [String]
      */
-    public static String[] getCoordinatesByAddress(String houseNumber, String street, String city,String country) throws IOException {
+    public static Double[] getCoordinatesByAddress(String houseNumber, String street, String city,String country) throws IOException {
         return getCoordinates(houseNumber+" "+street,city,country);
     }
 
@@ -29,7 +29,7 @@ public class MapMgr {
     @ params: nazwa klubu, miasto, kraj
     @ return: tablica ze współrzędnymi [String]
  */
-    public static String[] getCoordinates(String club, String city,String country) throws IOException {
+    public static Double[] getCoordinates(String club, String city,String country) throws IOException {
         String params = club+ ", " + Normalizer.grbgDel(city) +
                 ", "+country+ "&format=" +format;
         params = params.replace(" ","+") + (email!= null? email : "");
@@ -37,9 +37,9 @@ public class MapMgr {
         try {
             jso = getJSON(params).getJSONObject(0);
         }catch (Exception e){
-            return new String[]{"0","0"};
+            return new Double[]{0.0,0.0};
         }
-        return new String[]{jso.getString("lat"),jso.getString("lon")};
+        return new Double[]{Double.valueOf(jso.getString("lat")),Double.valueOf(jso.getString("lon"))};
     }
 
     private static JSONArray getJSON(String params) throws IOException {
@@ -50,8 +50,9 @@ public class MapMgr {
     }
 
     public static void main(String[] args) throws IOException {
-        for(String s : getCoordinates("Alibi","Wrocław",""))
-            System.out.println(s);
+        for(Double d : getCoordinates("Alibi","Wrocław","")) {
+            System.out.println(d);
+        }
     }
 
 }
