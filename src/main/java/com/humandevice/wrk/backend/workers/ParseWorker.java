@@ -16,7 +16,7 @@ public abstract class ParseWorker extends Worker {
 	protected PreparedStatement pstm = null;
 	protected ResultSet resultSet = null;
 	protected String agencyName;
-	private static final String table = "concerts_test";
+	private static final String table = "concerts";
 
 	/*
 	 * Abstract class to get data from agencies
