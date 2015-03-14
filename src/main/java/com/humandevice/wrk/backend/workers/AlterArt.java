@@ -17,12 +17,11 @@ public class AlterArt extends ParseWorker {
 
 	public void getData() throws IOException {
 		String URL_ALTERART = "http://alterart.pl/pl/Archiwum";
-		Document doc = Jsoup.connect(URL_ALTERART).get();
+		Document doc = Jsoup.connect(URL_ALTERART).timeout(60000).get();
 		Element allEvents = doc.getElementById("all_events");
-		int currentHash = allEvents.hashCode();
 
 		Elements names = allEvents.getElementsByClass("concert-box-data-name");
-		ArrayList<String> urls = new ArrayList<String>();
+		ArrayList<String> urls = new ArrayList<>();
 		for (Element el : names)
 			urls.add(el.select("a").attr("href"));
 		Elements datesPlaces = allEvents.getElementsByClass("concert-box-data-date");
