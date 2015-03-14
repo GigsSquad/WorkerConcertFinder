@@ -8,12 +8,10 @@ import org.jsoup.select.Elements;
 
 public class Kayax extends ParseWorker {
 
-//	private String URL_KAYAX = "http://kayax.net/kalendarz/0";
-	String agencyName;
 
 	public Kayax() {
 		super();
-		String agencyName = "KAYAX";
+		agencyName = "KAYAX";
 	}
 
 	public void getData() throws IOException {
@@ -81,8 +79,10 @@ public class Kayax extends ParseWorker {
 				String conUrl =row.getElementsByTag("a").first().attr("href");
 				conUrl="http://kayax.net"+conUrl;
 				// System.out.printf(conYear+"   "+conMonth+"   "+conDay+"\n");
+				String log = String.format("ISTNIEJE %-4.4s %-12.12s %-20.20s %-40.40s", agencyName, conCity, conSpot, conName);
+				System.out.println(log);
 				addConcert(conName, conCity, conSpot, conDay, conMonth, conYear, agencyName, conUrl);
-
+					
 			}
 			
 			// agencyName, conUrl);
