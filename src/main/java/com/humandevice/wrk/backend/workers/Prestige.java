@@ -1,11 +1,11 @@
 package com.humandevice.wrk.backend.workers;
 
-import java.io.IOException;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import java.io.IOException;
 
 public class Prestige extends ParseWorker {
 	
@@ -40,11 +40,11 @@ public class Prestige extends ParseWorker {
 				}
 
 		
-			int conDay = Integer.valueOf(conDate.split(" ")[0].split("-")[0]);
+			int conYear = Integer.valueOf(conDate.split(" ")[0].split("-")[0]);
 
 			int conMonth = Integer.valueOf(conDate.split(" ")[0].split("-")[1]);
 
-			int conYear = Integer.valueOf(conDate.split(" ")[0].split("-")[2]);
+			int conDay = Integer.valueOf(conDate.split(" ")[0].split("-")[2]);
 
 			// System.out.println(conDay+"\n"+ conMonth+"\n"+conYear+"\n");
 			//System.out.println(conCity+"$$$"+conSpot);
