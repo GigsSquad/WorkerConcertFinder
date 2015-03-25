@@ -2,27 +2,24 @@ package com.humandevice.wrk.backend.workers;
 
 import com.humandevice.wrk.backend.others.MapMgr;
 import com.humandevice.wrk.backend.others.Normalizer;
-import com.itextpdf.text.log.SysoLogger;
+import com.humandevice.wrk.backend.pojos.LatLngPojo;
 import com.mysql.jdbc.MysqlDataTruncation;
-import com.mysql.jdbc.exceptions.jdbc4.MySQLDataException;
+import com.mysql.jdbc.Statement;
 
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-//import com.humandevice.wrk.backend.others.Normalizer;
-
 public abstract class ParseWorker extends Worker {
 
-	static Logger logger = Logger.getLogger(ParseWorker.class);
 	protected long lastRun;
-	protected PreparedStatement preparedStatement = null;
+	protected PreparedStatement pstm = null;
 	protected ResultSet resultSet = null;
 	protected String agencyName;
-	public static int errCount = 0;
+	private static final String table = "gigs";
+
 	/*
 	 * Abstract class to get data from agencies
 	 */
@@ -32,67 +29,114 @@ public abstract class ParseWorker extends Worker {
 	public void addConcert(String conArtist, String conCity, String conSpot, int conDay, int conMonth, int conYear, String agencyName, String conUrl) {
 
 		try {
-			PreparedStatement pstm = null;
-            ResultSet rs = null;
-            conCity = Normalizer.normalizeCity(conCity);
-            //conSpot = Normalizer.normalizeSpot(conSpot) <- to jest na którymś branchu
+			conSpot = Normalizer.normalizeSpot(conSpot);
+			conCity = Normalizer.normalizeCity(conCity);
 
-            //sprawdzamy czy miejsce jest już w bazie
-            String getPlace = "SELECT * FROM new_places WHERE city = ? AND spot = ?";
-            pstm = connection.prepareStatement(getPlace);
-            pstm.setString(1,conCity);
-            pstm.setString(2,conSpot);
+			LatLngPojo latlng = MapMgr.getCoordinates(conSpot, conCity);
 
-            rs = pstm.executeQuery();
+			//pobieram
+			String get = String.format("select * from %s" +
+                    " join spots on gigs.id_spot = spots.id_spot" +
+                    " join artists on gigs.id_artist = artists.id_artist "+
+                    "WHERE artist = ? AND city = ? AND date=?", table);
 
-            if(rs.next()){ // miejsce w bazie
-                System.out.println("Już w bazie: "+conCity+" "+conSpot);
-            }
-            else { // musimy dodać miejsce do bazy
-                Double[] lonlat = MapMgr.getCoordinates(conSpot, conCity, "");
-                Double lon = lonlat[0], lat = lonlat[1];
-                String insertPlace = "INSERT INTO new_places (`city`,`spot`,`lat`,`lon`) VALUES (?,?,?,?)";
-                pstm = connection.prepareStatement(insertPlace);
+			pstm = connection.prepareStatement(get);
+			pstm.setString(1, conArtist);
+			pstm.setString(2, conCity);
+			pstm.setString(3, String.format("%d-%d-%d", conYear, conMonth, conDay));
+
+          //  System.out.println()
+			resultSet = pstm.executeQuery();
+			String log;
+
+			if (resultSet.next()) {
+				log = String.format("ISTNIEJE %-4.4s %-12.12s %-20.20s %-18.18s %-18.18s %-40.40s", agencyName, conCity, conSpot, latlng.getLatitude(),
+						latlng.getLongitude(), conArtist);
+				System.out.println(log);
+
+			} else {
+				log = String.format("DODAJE %-4.4s %-12.12s %-20.20s %-18.18s %-18.18s %-40.40s", agencyName, conCity, conSpot, latlng.getLatitude(),
+						latlng.getLongitude(), conArtist);
+				System.out.println(log);
+            ////////////////////nowa wersja
+
+                //patrzymy czy jest artysta
+                String getArt = "select id_artist from artists where artist=?";
+                pstm = connection.prepareStatement(getArt);
+                pstm.setString(1, conArtist);
+                resultSet = pstm.executeQuery();
+
+                int id_artist=0;
+                if (!resultSet.next())// jezeli nie bylo artysty to go dodajemy
+                {
+                    String insertToArtTable = "INSERT INTO artists(artist) VALUES(?)";
+                    pstm = connection.prepareStatement(insertToArtTable, Statement.RETURN_GENERATED_KEYS);
+                    pstm.setString(1, conArtist);
+                    pstm.executeUpdate();
+
+                    ResultSet idSet = pstm.getGeneratedKeys(); //get last inserted id
+                    idSet.next();
+                    id_artist = idSet.getInt(1);
+                    System.out.println("id_artist"+id_artist);
+                } else {
+                    id_artist = resultSet.getInt("id_artist");
+                }
+
+
+
+
+                //patrzymy czy jest lokalizacja
+                String getSpot = "select id_spot from spots where city = ? and spot=? ";
+                pstm = connection.prepareStatement(getSpot);
                 pstm.setString(1,conCity);
                 pstm.setString(2,conSpot);
-                pstm.setDouble(3,lat);
-                pstm.setDouble(4,lon);
+                resultSet = pstm.executeQuery();
+                int id_spot=0;
+
+                if(!resultSet.next()) { // jezeli nie ma spot to dodajemy
+                    String insertToArtTable = "INSERT IGNORE INTO spots(city,spot,lat,lon,country) VALUES(?,?,?,?,?)";
+                    pstm = connection.prepareStatement(insertToArtTable,Statement.RETURN_GENERATED_KEYS);
+                    pstm.setString(1, conCity);
+                    pstm.setString(2, conSpot);
+                    pstm.setString(3, latlng.getLatitude());
+                    pstm.setString(4, latlng.getLongitude());
+                    pstm.setString(5, "PL");
+                   pstm.executeUpdate();
+
+                        ResultSet idSet = pstm.getGeneratedKeys();//get last inserted id
+                    idSet.next();
+                    id_spot = idSet.getInt(1);
+                            System.out.println("id_spot"+id_spot);
+                }
+                else {
+                    id_spot = resultSet.getInt("id_spot");
+                }
+                // okej teraz wsadzamy wszystko razem
+
+                String insertToGigs = String
+                        .format("INSERT IGNORE INTO %s(id_artist, id_spot, date, agency, url) VALUES(?,?,DATE ?,?,?)", table);
+
+                pstm = connection.prepareStatement(insertToGigs);
+                pstm.setInt(1, id_artist);
+                pstm.setInt(2, id_spot);
+                pstm.setString(3, String.format("%d-%d-%d", conYear, conMonth, conDay));
+                pstm.setString(4,agencyName);
+                pstm.setString(5, conUrl);
+
                 pstm.executeUpdate();
-            }
-            // miejsce na bank jest już w bazie, można dodać miasto i stworzyć relację
-            // do relacji przyda nam się id_place, więc zanim dodamy koncert musimy to wyciągnąć
-            String getPlaceId = "SELECT place_id FROM new_places WHERE city = '"+conCity+"' AND spot = '"+conSpot+"'";
-            rs = pstm.executeQuery(getPlaceId);
-            rs.next();
-            Integer placeID = rs.getInt(1);
 
-            System.out.println("Agencja: "+agencyName);
-            System.out.println("PL_ID ("+conCity+","+conSpot+"): "+ (placeID==null? "chuj" : placeID)+"\n ------------");
-
-            String insertGig = "INSERT IGNORE INTO new_concerts (`artist`,`place_id`,`day`,`month`,`year`,`agency`,`url`)" +
-                    "VALUES (?,?,?,?,?,?,?)";
-
-			pstm = connection.prepareStatement(insertGig);
-            pstm.setString(1,conArtist);
-            pstm.setInt(2,placeID);
-            pstm.setInt(3, conDay);
-            pstm.setInt(4,conMonth);
-            pstm.setInt(5,conYear);
-            pstm.setString(6,agencyName);
-            pstm.setString(7,conUrl);
-
-            pstm.executeUpdate();
+		}
 		} catch (MysqlDataTruncation trnce) {
 			sqlError("za długa kolumna " + conArtist);
-		} catch (SQLException e) {
-			sqlError("dunno");
-			e.printStackTrace();
-		} catch (IOException e) {
-			sqlError("błąd z lon/lat");
+		} catch (SQLException sqle) {
+			sqle.printStackTrace();
 		}
-
+        catch (NullPointerException npe)
+        {
+            System.err.println("NULL POINTER"+conArtist); // to bedzie do wyjebania
+        }
 	}
-	
+
 	/**
 	 * Metoda odpowiedzialna za wykonywania działań konkretnego workera
 	 */
@@ -102,10 +146,43 @@ public abstract class ParseWorker extends Worker {
 
 		lastRun = System.currentTimeMillis();
 		try {
+			updateLatLng(false);
 			getData();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (IOException | SQLException ioe) {
+			ioe.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Bierze wszystkie koncerty pokolei które mają lat = 0 lub lon = 0 i próbuje do nich znaleźć poprawne współrzędne
+	 *
+	 * @param forceUpdate - aktualizuje wszystkie współrzędne z bazy, a nie tylko brakujące
+	 * @throws SQLException
+	 */
+	public void updateLatLng(boolean forceUpdate) throws SQLException {
+		String select = "SELECT * FROM spots";
+
+		if (!forceUpdate) {
+			select = String.format("%s WHERE lat = 0 OR lon = 0", select);
+		}
+
+		pstm = connection.prepareStatement(select);
+		resultSet = pstm.executeQuery();
+
+		while (resultSet.next()) {
+			String update = "UPDATE spots SET lat = ?, lon = ? WHERE ord = ?";
+			pstm = connection.prepareStatement(update);
+
+			LatLngPojo latlon = MapMgr.getCoordinates(resultSet.getString(3), resultSet.getString(4));
+			if (!latlon.isEmpty()) {
+				pstm.setString(1, latlon.getLatitude());
+				pstm.setString(2, latlon.getLongitude());
+				pstm.setInt(3, resultSet.getInt(1));
+				pstm.executeUpdate();
+			}
+			System.out.println(
+					"UPDATE LatLng: " + resultSet.getString(3) + " " + resultSet.getString(4) + " - " + latlon.getLatitude() + " / " + latlon.getLongitude());
 		}
 
 	}
@@ -113,21 +190,15 @@ public abstract class ParseWorker extends Worker {
 	public boolean checkConditions() {
 		long currentTime = System.currentTimeMillis();
 
-		return (currentTime - lastRun) > 50 * 1000;
+		return (currentTime - lastRun) > 900000; //15 minut
 	}
 
 	protected void parseError(String err) {
 		System.err.println(agencyName + ": błąd parsowania (" + err + ")");
-		errCount++;
 	}
 
 	private void sqlError(String err) {
 		System.err.println(err);
-		errCount++;
 	}
 
-	public int getErrCounter() {
-		return errCount;
-	}
-	
 }

@@ -86,7 +86,7 @@ public class PortalWorker {
 	}
 
 	/**
-	 * @param configuration Pointer to a configuration file
+	 * @param config Pointer to a configuration file
 	 * @param endpoint      URL for CXF SOAP endpoint for control interface
 	 * @param port          Port number for web service, default 80
 	 * @throws IOException
