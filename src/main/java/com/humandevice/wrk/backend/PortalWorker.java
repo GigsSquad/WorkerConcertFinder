@@ -27,14 +27,14 @@ public class PortalWorker {
 	static Logger logger = Logger.getLogger(PortalWorker.class);
 
 	/**
-	 * Handle parameters using http://commons.apache.org/cli/usage.html, possible parameters: <br>
-	 * -port=x - set port number for CXF (default 80)<br>
-	 * -url=/control - set URL for CXF endpoint (default "/control")<br>
-	 * -config=config.properties = set relative path to config file (default "configuration.properties")<br>
-	 *
-	 * @param args Command line arguments
-	 * @throws org.apache.commons.cli.ParseException
-	 */
+     * Handle parameters using http://commons.apache.org/cli/usage.html, possible parameters: <br>
+     * -port=x - set port number for CXF (default 80)<br>
+     * -url=/control - set URL for CXF endpoint (default "/control")<br>
+     * -config=config.properties = set relative path to config file (default "configuration.properties")<br>
+     *
+     * @param args Command line arguments
+     * @throws org.apache.commons.cli.ParseException
+     */
 	public static void main(String[] args) throws org.apache.commons.cli.ParseException, IOException {
 		String config = "src/main/resources/configuration.properties";
 		int port = 85;
