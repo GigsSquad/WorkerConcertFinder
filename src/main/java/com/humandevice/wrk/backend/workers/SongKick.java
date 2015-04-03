@@ -19,10 +19,8 @@ public class SongKick extends ParseWorker{
     private static String url_2 = "&per_page=10&query=";
     private static String url_3 = "&type=upcoming";
     // url1+page+url2+country+url3
-    private static ArrayList<String> monthNames = new ArrayList<String>(Arrays.asList(
-            new String[]{"Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"}));
-    private static String[] countries = new String[]{"Poland","Germany","France","Netherlands","Spain","Denmark","Italy",
-        "Sweden","Ireland","Hungary","England","Czech+Republic","Slovenia"};
+    private static ArrayList<String> monthNames = new ArrayList<String>(Arrays.asList(new String[]{"Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"}));
+    private static String[] countries = new String[]{"Poland"}; //,"Germany","France","Netherlands","Spain","Denmark","Italy","Sweden","Ireland","Hungary","England","Czech+Republic","Slovenia"
 
     public SongKick(){
         super();
