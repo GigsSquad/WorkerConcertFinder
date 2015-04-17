@@ -60,7 +60,7 @@ public abstract class ParseWorker extends Worker {
             String getArtistsQuery = "SELECT id_artist FROM artists WHERE artist = ?";
             pstm = connection.prepareStatement(getArtistsQuery);
             pstm.setString(1, conArtist);
-            resultSet = pstm.executeQuery();
+            resultSet = pstm.executeQuery(); 
 
             int id_artist = 0;
             if (!resultSet.next()) { // jezeli nie bylo artysty to go dodajemy
